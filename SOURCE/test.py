@@ -1,5 +1,7 @@
 import pandas
 import pickle
+from sklearn import svm
+from sklearn.externals import joblib
 
 
 class Data_Processing:
@@ -129,6 +131,22 @@ class Data_Processing:
 		with open("LabelData.out","wb") as fp1:
 			pickle.dump(labelList,fp1)
 
+	def Classifier(self):
+		with open("TrainingData.out", "rb") as fp:
+			TrainingData = pickle.load(fp)
+
+		with open("LabelData.out","rb") as fp1:
+			Labels = pickle.load(fp1)
+
+		clf = svm.SVC()
+		clf.fit(TrainingData,Labels)
+		#print clf.predict([[6837,15712,686,1221641,16755441]])
+		joblib.dump(clf,"SVM_MODEL.pkl")
+
+	def TestModel(self,TestData):
+		clf = joblib.load("SVM_MODEL.pkl")
+		print clf.predict(TestData)
+
 
 
 
@@ -137,4 +155,6 @@ class Data_Processing:
 data_model = Data_Processing('eegIDRecord.csv')
 #data_model.Data_process("DTfile.txt")
 #data_model.Data_transform("DTfile.txt","UniqueData.txt")
-data_model.Assign_labels("UniqueData.txt","Max.txt","training.txt")
+#data_model.Assign_labels("UniqueData.txt","Max.txt","training.txt")
+#data_model.Classifier()
+data_model.TestModel([[6837,15712,686,1221641,16755441]])

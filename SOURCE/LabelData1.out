@@ -1,8 +1,8 @@
 (lp0
-S'Sad'
+S'stress'
 p1
 ag1
-aS'Happy'
+aS'ADHD'
 p2
 ag2
 ag1
@@ -16,7 +16,8 @@ ag1
 ag1
 ag1
 ag1
-ag2
+aS'relaxed'
+p3
 ag1
 ag1
 ag1

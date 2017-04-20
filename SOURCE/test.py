@@ -44,7 +44,6 @@ class Data_Processing:
 		avgtheta = (mintheta+maxtheta)/2
 
 		#minvalues
-
 		fo = open("Min.txt","a")	
 		line = fo.write(str(minalpha)+","+str(minbeta)+","+str(mingamma)+","+str(mindelta)+","+str(mintheta)+"\n")
 		fo.close()
@@ -110,11 +109,10 @@ class Data_Processing:
 
 			if ((Alpha+Beta) >=1.5 or (Gamma+Delta+Theta)<=1):
 
-				label = "stress"
-			elif ((Alpha+Beta) <= 0.5 or (Gamma+Delta+Theta)>=2):
-				label = "ADHD"
+				label = "Sad"
 			else:
-				label = "relaxed"
+				label = "Happy"
+			
 
 			labelList.append(label)
 			trainingData.append(wavelist)
@@ -123,29 +121,43 @@ class Data_Processing:
 			line = fo.write(waveData)
 		fo.close()
 
-		print trainingData
+		#print trainingData
 
-		with open("TrainingData.out", "wb") as fp:
-			pickle.dump(trainingData,fp)
+		return trainingData,labelList
+		#with open("TrainingData.out", "wb") as fp:
+		#	pickle.dump(trainingData,fp)
 
-		with open("LabelData.out","wb") as fp1:
-			pickle.dump(labelList,fp1)
+		#with open("LabelData.out","wb") as fp1:
+		#	pickle.dump(labelList,fp1)
 
-	def Classifier(self):
-		with open("TrainingData.out", "rb") as fp:
-			TrainingData = pickle.load(fp)
+	def Classifier(self,trainingList,Labels):
+		#with open("TrainingData.out", "rb") as fp:
+		#	TrainingData = pickle.load(fp)
 
-		with open("LabelData.out","rb") as fp1:
-			Labels = pickle.load(fp1)
-
+		#with open("LabelData.out","rb") as fp1:
+		#	Labels = pickle.load(fp1)
+		TrainingData = trainingList
+		Labels = labelList
 		clf = svm.SVC()
 		clf.fit(TrainingData,Labels)
+		return clf
 		#print clf.predict([[6837,15712,686,1221641,16755441]])
-		joblib.dump(clf,"SVM_MODEL.pkl")
+		#joblib.dump(clf,"SVM_MODEL.pkl")
 
-	def TestModel(self,TestData):
-		clf = joblib.load("SVM_MODEL.pkl")
-		print clf.predict(TestData)
+	def TestModel(self,clf,filename):
+		for lineData in open(filename):
+			lineDataArr = lineData.split(",")
+			TestD = []
+			testdata = []
+			for wave in lineDataArr:
+				testdata.append(wave)
+			TestD.append(testdata)
+			print clf.predict(TestD)
+
+
+		
+
+		#print clf.predict(TestData)
 
 
 
@@ -155,6 +167,7 @@ class Data_Processing:
 data_model = Data_Processing('eegIDRecord.csv')
 #data_model.Data_process("DTfile.txt")
 #data_model.Data_transform("DTfile.txt","UniqueData.txt")
-#data_model.Assign_labels("UniqueData.txt","Max.txt","training.txt")
-#data_model.Classifier()
-data_model.TestModel([[6837,15712,686,1221641,16755441]])
+trainingList,labelList = data_model.Assign_labels("UniqueData.txt","Max.txt","training.txt")
+clf = data_model.Classifier(trainingList,labelList)
+
+data_model.TestModel(clf,"testing.txt")

@@ -144,15 +144,116 @@ class Data_Processing:
 		#print clf.predict([[6837,15712,686,1221641,16755441]])
 		#joblib.dump(clf,"SVM_MODEL.pkl")
 
+
+	def TrainModel(self,labelList,filename):
+		csvfile = filename
+		colnames = ['timestampMs','poorSignal','eegRawValue','eegRawValueVolts','attention','meditation','blinkStrength','delta','theta','alphaLow','alphaHigh','betaLow','betaHigh','gammaLow','gammaMid','tagEvent','location']
+		data = pandas.read_csv(csvfile, names = colnames, header = 0)
+
+		alpha = data.alphaHigh.tolist()
+		beta = data.betaHigh.tolist()
+		gamma = data.gammaMid.tolist()
+		delta = data.delta.tolist()
+		theta = data.theta.tolist()
+
+		#print theta
+
+		fullData = set()
+		for i in range (0,len(alpha)):
+			line = ""
+			line+=str(alpha[i])+","+str(beta[i])+","+str(gamma[i])+","+str(theta[i])+","+str(delta[i])
+			#print line
+			fullData.add(line)
+
+
+		#print len(fullData)
+
+		
+		TestD = []
+		for lineData in fullData:
+			lineDataArr = lineData.split(",")
+			
+			testdata = []
+			for wave in lineDataArr:
+				testdata.append(wave)
+			TestD.append(testdata)
+
+		TestD.pop(0)
+		#print TestD
+		print len(labelList)
+		clf = svm.SVC()
+		clf.fit(TestD,labelList)
+		return clf
+
+
+
 	def TestModel(self,clf,filename):
-		for lineData in open(filename):
+		csvfile = filename
+		colnames = ['timestampMs','poorSignal','eegRawValue','eegRawValueVolts','attention','meditation','blinkStrength','delta','theta','alphaLow','alphaHigh','betaLow','betaHigh','gammaLow','gammaMid','tagEvent','location']
+		data = pandas.read_csv(csvfile, names = colnames, header = 0)
+
+		alpha = data.alphaHigh.tolist()
+		beta = data.betaHigh.tolist()
+		gamma = data.gammaMid.tolist()
+		delta = data.delta.tolist()
+		theta = data.theta.tolist()
+
+		#print theta
+
+		fullData = set()
+		for i in range (0,len(alpha)):
+			line = ""
+			line+=str(alpha[i])+","+str(beta[i])+","+str(gamma[i])+","+str(theta[i])+","+str(delta[i])
+			#print line
+			fullData.add(line)
+
+
+		#print len(fullData)
+
+		countHappy=0
+		countSad =0
+
+		for lineData in fullData:
 			lineDataArr = lineData.split(",")
 			TestD = []
 			testdata = []
 			for wave in lineDataArr:
 				testdata.append(wave)
 			TestD.append(testdata)
-			print clf.predict(TestD)
+			val = clf.predict(TestD)
+			print val[0]
+			if val[0] == "Happy":
+				countHappy+=1
+			else:
+				countSad+=1
+
+
+		if countHappy>countSad:
+			return "Happy"
+		else:
+			return "Sad"
+
+			
+
+
+
+		
+		
+		
+
+		
+
+
+
+
+		#for lineData in open(filename):
+		#	lineDataArr = lineData.split(",")
+		#	TestD = []
+		#	testdata = []
+		#	for wave in lineDataArr:
+		#		testdata.append(wave)
+		#	TestD.append(testdata)
+		#	print clf.predict(TestD)
 
 
 		
@@ -168,6 +269,7 @@ data_model = Data_Processing('eegIDRecord.csv')
 #data_model.Data_process("DTfile.txt")
 #data_model.Data_transform("DTfile.txt","UniqueData.txt")
 trainingList,labelList = data_model.Assign_labels("UniqueData.txt","Max.txt","training.txt")
-clf = data_model.Classifier(trainingList,labelList)
-
-data_model.TestModel(clf,"testing.txt")
+#clf = data_model.Classifier(trainingList,labelList)
+clf = data_model.TrainModel(labelList,"eegIDRecord.csv")
+result = data_model.TestModel(clf,"testing.csv")
+print result

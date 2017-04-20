@@ -83,7 +83,7 @@ class Data_Processing:
 
 	
 
-	def Assign_labels(self,filename,maxfilename,trainingfile):
+	def Assign_labels(self,filename,maxfilename):
 		for MaxData in open(maxfilename):
 			MaxDataVal = MaxData.split(",")
 
@@ -91,7 +91,6 @@ class Data_Processing:
 		trainingData = []
 
 		label = ""
-		fo = open(trainingfile,"a")	
 		
 			
 
@@ -118,9 +117,7 @@ class Data_Processing:
 			trainingData.append(wavelist)
 
 			waveData = waveData.strip()+","+label+"\n"
-			line = fo.write(waveData)
-		fo.close()
-
+			
 		#print trainingData
 
 		return trainingData,labelList
@@ -164,6 +161,9 @@ class Data_Processing:
 			line+=str(alpha[i])+","+str(beta[i])+","+str(gamma[i])+","+str(theta[i])+","+str(delta[i])
 			#print line
 			fullData.add(line)
+
+
+
 
 
 		#print len(fullData)
@@ -268,7 +268,7 @@ class Data_Processing:
 data_model = Data_Processing('eegIDRecord.csv')
 #data_model.Data_process("DTfile.txt")
 #data_model.Data_transform("DTfile.txt","UniqueData.txt")
-trainingList,labelList = data_model.Assign_labels("UniqueData.txt","Max.txt","training.txt")
+trainingList,labelList = data_model.Assign_labels("UniqueData.txt","Max.txt")
 #clf = data_model.Classifier(trainingList,labelList)
 clf = data_model.TrainModel(labelList,"eegIDRecord.csv")
 result = data_model.TestModel(clf,"testing.csv")
